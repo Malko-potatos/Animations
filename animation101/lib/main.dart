@@ -90,6 +90,17 @@ class HomeScreen extends StatelessWidget {
               },
               child: const Text('Timer-based Animation (Choppy)'),
             ),
+            const Gap(20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const TransformAnimationPage()),
+                );
+              },
+              child: const Text('Transform-based Animation'),
+            ),
           ],
         ),
       ),
@@ -308,7 +319,7 @@ class TickerAnimationPageState extends State<TickerAnimationPage>
   void initState() {
     super.initState();
 
-    ticker = this.createTicker((Duration elapsed) {
+    ticker = createTicker((Duration elapsed) {
       setState(() {
         angle = (elapsed.inMilliseconds % 2000) / 2000 * 2 * pi;
       });
@@ -386,6 +397,62 @@ class TimerAnimationPageState extends State<TimerAnimationPage> {
         ),
       ),
     );
+  }
+}
+
+class TransformAnimationPage extends StatefulWidget {
+  const TransformAnimationPage({super.key});
+
+  @override
+  TransformAnimationPageState createState() => TransformAnimationPageState();
+}
+
+class TransformAnimationPageState extends State<TransformAnimationPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<double> animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    animation = Tween<double>(begin: 0, end: 2 * pi).animate(controller);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Transform-based Animation'),
+      ),
+      body: Center(
+        child: AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            return Transform.rotate(
+              angle: animation.value, // 애니메이션 값에 따라 회전
+              child: child,
+            );
+          },
+          child: Container(
+            width: 100,
+            height: 100,
+            color: Colors.purple,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }
 
